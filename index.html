@@ -63,19 +63,9 @@ Who are we?
 ## Contents
 
 1. What is a news feed?
-	- Overview
-	- Fan-out on write VS read
 1. News feed prototype
-	- Technical challenges
-	- How to prototype?
-	- Model
-	- Query
 1. News feed in production
-	- Event-driven indexation
-	- Pitfalls
-	- Some figures
-	- What comes next?
-1. Questions?
+1. What's next?					
 					</script>
 				</section>
 				<section data-markdown>
@@ -164,12 +154,34 @@ Store atomic news and aggregate a news feed at the query time
 - Be minimalist <!-- .element: class="fragment" -->
 	- "You Aren't Gonna Need It"
 	- "Keep it Simple, Stupid!"
-
-**TODO add images!!**
-
-- ![cucumber](img/cucumber.png)
-- ![gatling](img/gatling.png)
 					</script>
+				</section>
+				<section data-markdown>
+				  <script type="text/template">
+## Cucumber Test
+```
+Scenario: Show a news feed from several sources, sorted by date, 
+          first is the most recent
+    Given "Ned" posts a status at 16h00
+      And "John" posts a status at 15h30
+      And "Jennyfer" comments a news at 14h18
+      And "Mary" updates her picture at 14h00
+      And "John" adds a new job position at 12h45
+    When I get my news feed
+    Then I see the following news:
+      | time  | news                        |
+      | 16h00 | Ned posts a status          |
+      | 15h30 | John posts a status         |
+      | 14h00 | Mary updates her picture    |
+      | 12h45 | John adds a new job postion |
+```
+				  </script>
+				</section>
+				<section data-markdown>
+				  <script type="text/template">
+## Gatling Test
+![Gatling](img/gatling.png)
+				  </script>
 				</section>
 				<section data-markdown>
 					<script type="text/template">
@@ -179,68 +191,6 @@ Store atomic news and aggregate a news feed at the query time
 - does it complies with the tests?
 
 **TODO**
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-## Activity Stream
-
-> John adds a new job position
-
-can be represented as
-
-| Actor | Verb   | Object   | Target  |
-|-------|--------|----------|---------|
-| John  | add    | position | profile |
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-## News document
-
-```json
-{
-	"_id": "urn:viadeo:news:33",
-	"producerId": "urn:viadeo:member:1",
-	"published": "2014-12-17T12:45:00.000Z",
-	"actor": {
-		"id": "urn:viadeo:member:1",
-		"objectType": "member",
-		"displayName": "John"
-	},
-	"verb": "add",
-	"object": {
-		"id": "urn:viadeo:position:10",
-		"objectType": "position",
-		"displayName": "Software Engineer @ Viadeo"
-	},
-	"target": {
-		"id": "urn:viadeo:profile:1",
-		"objectType": "profile",
-		"displayName": "John's profile"
-	}
-}
-```
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-## Consumer network document
-
-> I know Ned, John and Mary
-
-can be represented as
-
-```json
-{
-	"_id": "urn:viadeo:network:1",
-	"producerIds": [
-		"urn:viadeo:member:2",
-		"urn:viadeo:member:3",
-		"urn:viadeo:member:4"
-	]
-}
-```
 					</script>
 				</section>
 				<section data-markdown>
@@ -269,6 +219,87 @@ curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
 				}
 			}
 		}
+	}
+}
+```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+## Consumer network document
+
+> I know Ned, John and Mary
+
+can be represented as
+
+```json
+{
+	"_id": "urn:viadeo:network:1",
+	"producerIds": [
+		"urn:viadeo:member:2",
+		"urn:viadeo:member:3",
+		"urn:viadeo:member:4"
+	]
+}
+```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+## News document V1
+
+```json
+{
+	"_id": "urn:viadeo:news:33",
+	"producerId": "urn:viadeo:member:1",
+	"published": "2014-12-17T12:45:00.000Z",
+}
+```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					  ## Terms filter lookup query
+					  ![Dog](img/happydog.gif)
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+## Activity Stream
+
+> John adds a new job position
+
+can be represented as
+
+| Actor | Verb   | Object   | Target  |
+|-------|--------|----------|---------|
+| John  | add    | position | profile |
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+## News document V2
+
+```json
+{
+	"_id": "urn:viadeo:news:33",
+	"producerId": "urn:viadeo:member:1",
+	"published": "2014-12-17T12:45:00.000Z",
+	"actor": {
+		"id": "urn:viadeo:member:1",
+		"objectType": "member",
+		"displayName": "John"
+	},
+	"verb": "add",
+	"object": {
+		"id": "urn:viadeo:position:10",
+		"objectType": "position",
+		"displayName": "Software Engineer @ Viadeo"
+	},
+	"target": {
+		"id": "urn:viadeo:profile:1",
+		"objectType": "profile",
+		"displayName": "John's profile"
 	}
 }
 ```
