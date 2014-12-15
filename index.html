@@ -1,86 +1,81 @@
 <!doctype html>
 <html lang="en">
 
-	<head>
-		<meta charset="utf-8">
+    <head>
+        <meta charset="utf-8">
 
-		<title>A news feed with Elasticsearch</title>
+        <title>A news feed with Elasticsearch</title>
 
-		<meta name="description" content="Feedback about the design and the implementation of the news feed of Viadeo with Elasticsearch.">
-		<meta name="author" content="Greg Truchetet and Quentin Suire">
+        <meta name="description" content="Feedback about the design and the implementation of the news feed of Viadeo with Elasticsearch.">
+        <meta name="author" content="Greg Truchetet and Quentin Suire">
 
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="css/reveal.min.css">
-		<link rel="stylesheet" href="css/theme/default.css" id="theme">
-		<link rel="stylesheet" href="css/overrides.css">
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+        <link rel="stylesheet" href="css/overrides.css">
 
-		<!-- For syntax highlighting -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
 
-		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
-		<script>
-			if( window.location.search.match( /print-pdf/gi ) ) {
-				var link = document.createElement( 'link' );
-				link.rel = 'stylesheet';
-				link.type = 'text/css';
-				link.href = 'css/print/pdf.css';
-				document.getElementsByTagName( 'head' )[0].appendChild( link );
-			}
-		</script>
+        <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+        <script>
+            if( window.location.search.match( /print-pdf/gi ) ) {
+                var link = document.createElement( 'link' );
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'css/print/pdf.css';
+                document.getElementsByTagName( 'head' )[0].appendChild( link );
+            }
+        </script>
 
-		<!--[if lt IE 9]>
-		<script src="lib/js/html5shiv.js"></script>
-		<![endif]-->
-	</head>
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
 
-	<body>
+    <body>
 
-		<div class="reveal">
-			<div class="slides">
-				<section data-markdown>
-					<script type="text/template">
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown data-separator="^\n---\n$" data-vertical="^\n--\n$">
+                    <script type="text/template">
 ## A news feed with
 # Elasticsearch
 
 Feedback by [Greg Truchetet]() & [Quentin Suire]() @ [Viadeo](https://www.viadeo.com)
 
 <small>Elasticsearch FR – 2014/12/17</small>
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 Who are we?
 
 ![Grumpf!](img/critters.png)
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Contents
 
 1. What is a news feed?
 1. News feed prototype
 1. News feed in production
-1. What's next?					
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+1. What is next?
+
+---
+
 <!-- .slide: data-background="#1b91ff" -->
 ## What is a news feed?
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ![Viadeo screenshot](img/viadeo-news-feed-highlighted.png)
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Basic example
 
 *I* <!-- .element: class="fragment highlight-green" data-fragment-index="1" -->
@@ -98,72 +93,71 @@ know
 | 12:45 | John adds a new job position |
 
 **How to *efficiently* store and retrieve it?** <!-- .element: class="fragment important" -->
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Fan-out on write
 # VS
 ## Fan-out on read
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-## Fan-out on write
+
+---
+
+## Fan-out on write 1/2
 
 Store pre-computed news feeds for each reader
 
 ![Bart](img/bart.gif)
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-					  ![Fan Out Write](img/fan-out-on-write.svg)
-					 </script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-## Fan-out on read
+
+---
+
+## Fan-out on write 2/2
+
+![Fan-out on write](img/fan-out-on-write.svg)
+
+---
+
+## Fan-out on read 1/2
 
 Store atomic news and aggregate a news feed at the query time
 
 ![Bart](img/aggregation.gif)
 
-### TODO illustrated example
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+---
+
+## Fan-out on read 2/2
+
+![Fan-out on read](img/fan-out-on-read.svg)
+
+---
+
 <!-- .slide: data-background="#1b91ff" -->
 ## News feed prototype
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Technical challenges
 
 - response time < 50ms <!-- .element: class="fragment" -->
 - reasonable denormalization <!-- .element: class="fragment" -->
 - easily maintainable <!-- .element: class="fragment" -->
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## How to prototype?
 
 - Drive your prototype by the tests <!-- .element: class="fragment" -->
-	- feature tests
-	- load tests
+    - feature tests
+    - load tests
 - Be minimalist <!-- .element: class="fragment" -->
-	- "You Aren't Gonna Need It"
-	- "Keep it Simple, Stupid!"
-					</script>
-				</section>
-				<section data-markdown>
-				  <script type="text/template">
+    - "You Aren't Gonna Need It"
+    - "Keep it Simple, Stupid!"
+
+---
+
 ## Cucumber Test
-```
-Scenario: Show a news feed from several sources, sorted by date, 
+
+```gherkin
+Scenario: Show a news feed from several sources, sorted by date,
           first is the most recent
     Given "Ned" posts a status at 16h00
       And "John" posts a status at 15h30
@@ -178,26 +172,24 @@ Scenario: Show a news feed from several sources, sorted by date,
       | 14h00 | Mary updates her picture    |
       | 12h45 | John adds a new job postion |
 ```
-				  </script>
-				</section>
-				<section data-markdown>
-				  <script type="text/template">
+
+---
+
 ## Gatling Test
+
 ![Gatling](img/gatling.png)
-				  </script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Model with fan-out on read
 
 - aggregate on read
 - does it complies with the tests?
 
 **TODO**
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Terms filter lookup query
 
 ```sh
@@ -206,29 +198,28 @@ curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
 
 ```json
 {
-	"query": {
-		"filtered": {
-			"query": {
-				"match_all": {}
-			},
-			"filter": {
-				"terms": {
-					"producerId": {
-						"index": "newsfeed_consumer_network",
-						"type": "consumer_network",
-						"id": "urn:viadeo:network:1",
-						"path": "producerIds"
-					}
-				}
-			}
-		}
-	}
+    "query": {
+        "filtered": {
+            "query": {
+                "match_all": {}
+            },
+            "filter": {
+                "terms": {
+                    "producerId": {
+                        "index": "newsfeed_consumer_network",
+                        "type": "consumer_network",
+                        "id": "urn:viadeo:network:1",
+                        "path": "producerIds"
+                    }
+                }
+            }
+        }
+    }
 }
 ```
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Consumer network document
 
 > I know Ned, John and Mary
@@ -237,37 +228,35 @@ can be represented as
 
 ```json
 {
-	"_id": "urn:viadeo:network:1",
-	"producerIds": [
-		"urn:viadeo:member:2",
-		"urn:viadeo:member:3",
-		"urn:viadeo:member:4"
-	]
+    "_id": "urn:viadeo:network:1",
+    "producerIds": [
+        "urn:viadeo:member:2",
+        "urn:viadeo:member:3",
+        "urn:viadeo:member:4"
+    ]
 }
 ```
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## News document V1
 
 ```json
 {
-	"_id": "urn:viadeo:news:33",
-	"producerId": "urn:viadeo:member:1",
-	"published": "2014-12-17T12:45:00.000Z",
+    "_id": "urn:viadeo:news:33",
+    "producerId": "urn:viadeo:member:1",
+    "published": "2014-12-17T12:45:00.000Z",
 }
 ```
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-					  ## Terms filter lookup query
-					  ![Dog](img/happydog.gif)
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
+## Terms filter lookup query
+
+![Dog](img/happydog.gif)
+
+---
+
 ## Activity Stream
 
 > John adds a new job position
@@ -277,118 +266,111 @@ can be represented as
 | Actor | Verb   | Object   | Target  |
 |-------|--------|----------|---------|
 | John  | add    | position | profile |
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## News document V2
 
 ```json
 {
-	"_id": "urn:viadeo:news:33",
-	"producerId": "urn:viadeo:member:1",
-	"published": "2014-12-17T12:45:00.000Z",
-	"actor": {
-		"id": "urn:viadeo:member:1",
-		"objectType": "member",
-		"displayName": "John"
-	},
-	"verb": "add",
-	"object": {
-		"id": "urn:viadeo:position:10",
-		"objectType": "position",
-		"displayName": "Software Engineer @ Viadeo"
-	},
-	"target": {
-		"id": "urn:viadeo:profile:1",
-		"objectType": "profile",
-		"displayName": "John's profile"
-	}
+    "_id": "urn:viadeo:news:33",
+    "producerId": "urn:viadeo:member:1",
+    "published": "2014-12-17T12:45:00.000Z",
+    "actor": {
+        "id": "urn:viadeo:member:1",
+        "objectType": "member",
+        "displayName": "John"
+    },
+    "verb": "add",
+    "object": {
+        "id": "urn:viadeo:position:10",
+        "objectType": "position",
+        "displayName": "Software Engineer @ Viadeo"
+    },
+    "target": {
+        "id": "urn:viadeo:profile:1",
+        "objectType": "profile",
+        "displayName": "John's profile"
+    }
 }
 ```
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 <!-- .slide: data-background="#1b91ff" -->
 ## News feed in production
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Event-driven indexation
 
 **TODO**
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Pitfalls
 
 - Terms filter cache is misleading
 - Use filtered query instead of query and filter
 - Limit the size of the list of producers in the consumer network
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## Some figures
 
 **TODO**
 
 - 42
 - 73
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 ## What comes next?
 
 **TODO**
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
+
+---
+
 <!-- .slide: data-background="#1b91ff" -->
 ## Questions?
-					</script>
-				</section>
-			</div>
+                    </script>
+                </section>
+            </div>
 
-		</div>
+        </div>
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.min.js"></script>
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
 
-		<script>
+        <script>
 
-			// Full list of configuration options available here:
-			// https://github.com/hakimel/reveal.js#configuration
-			Reveal.initialize({
-				controls: true,
-				progress: true,
-				history: true,
-				center: true,
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
 
-				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
-				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
 
-				// Parallax scrolling
-				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
-				// parallaxBackgroundSize: '2100px 900px',
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
 
-				// Optional libraries used to extend on reveal.js
-				dependencies: [
-					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
-					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
-				]
-			});
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
 
-		</script>
+        </script>
 
-	</body>
+    </body>
 </html>
