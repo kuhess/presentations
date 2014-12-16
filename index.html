@@ -183,10 +183,72 @@ Scenario: Show a news feed from several sources, sorted by date,
 
 ## Model with fan-out on read
 
-- aggregate on read
-- does it complies with the tests?
+Build news feed on read <!-- .element: class="fragment" -->
 
-**TODO**
+*Terms filter lookup!* <!-- .element: class="fragment important" -->
+
+- Two indices <!-- .element: class="fragment" -->
+  - `newsfeed`
+  - `newsfeed_consumer_network`
+
+---
+
+## Consumer network document
+
+> I know Ned, John and Mary
+
+can be represented as
+
+```json
+{
+    "_id": "urn:viadeo:network:me",
+    "producerIds": [
+        "urn:viadeo:member:ted",
+        "urn:viadeo:member:john",
+        "urn:viadeo:member:mary"
+    ]
+}
+```
+
+---
+
+## Activity Stream
+
+> John adds a new job position
+
+can be represented as
+
+| Actor | Verb   | Object   | Target  |
+|-------|--------|----------|---------|
+| John  | add    | position | profile |
+
+---
+
+## News document
+
+```json
+{
+    "_id": "urn:viadeo:news:33",
+    "producerId": "urn:viadeo:member:john",
+    "published": "2014-12-17T12:45:00.000Z",
+    "actor": {
+        "id": "urn:viadeo:member:john",
+        "objectType": "member",
+        "displayName": "John"
+    },
+    "verb": "add",
+    "object": {
+        "id": "urn:viadeo:position:10",
+        "objectType": "position",
+        "displayName": "Software Engineer @ Viadeo"
+    },
+    "target": {
+        "id": "urn:viadeo:profile:john",
+        "objectType": "profile",
+        "displayName": "John's profile"
+    }
+}
+```
 
 ---
 
@@ -208,7 +270,7 @@ curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
                     "producerId": {
                         "index": "newsfeed_consumer_network",
                         "type": "consumer_network",
-                        "id": "urn:viadeo:network:1",
+                        "id": "urn:viadeo:network:me",
                         "path": "producerIds"
                     }
                 }
@@ -220,80 +282,9 @@ curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
 
 ---
 
-## Consumer network document
-
-> I know Ned, John and Mary
-
-can be represented as
-
-```json
-{
-    "_id": "urn:viadeo:network:1",
-    "producerIds": [
-        "urn:viadeo:member:2",
-        "urn:viadeo:member:3",
-        "urn:viadeo:member:4"
-    ]
-}
-```
-
----
-
-## News document V1
-
-```json
-{
-    "_id": "urn:viadeo:news:33",
-    "producerId": "urn:viadeo:member:1",
-    "published": "2014-12-17T12:45:00.000Z",
-}
-```
-
----
-
 ## Terms filter lookup query
 
 ![Dog](img/happydog.gif)
-
----
-
-## Activity Stream
-
-> John adds a new job position
-
-can be represented as
-
-| Actor | Verb   | Object   | Target  |
-|-------|--------|----------|---------|
-| John  | add    | position | profile |
-
----
-
-## News document V2
-
-```json
-{
-    "_id": "urn:viadeo:news:33",
-    "producerId": "urn:viadeo:member:1",
-    "published": "2014-12-17T12:45:00.000Z",
-    "actor": {
-        "id": "urn:viadeo:member:1",
-        "objectType": "member",
-        "displayName": "John"
-    },
-    "verb": "add",
-    "object": {
-        "id": "urn:viadeo:position:10",
-        "objectType": "position",
-        "displayName": "Software Engineer @ Viadeo"
-    },
-    "target": {
-        "id": "urn:viadeo:profile:1",
-        "objectType": "profile",
-        "displayName": "John's profile"
-    }
-}
-```
 
 ---
 
@@ -304,15 +295,42 @@ can be represented as
 
 ## Event-driven indexation
 
+Viadeo internal platform is **event based**
+
+- event ~ news
+- indexer == listener
+- near real-time indexation (some ms)
+
+---
+
+## Pitfall: conflict with consumer networks
+
+### Problem
+
+- one document per consumer with **all producers**
+- conflict on update
+
+### Solutions
+
+- Quick & dirty: retry!
+- Product-oriented: limit number of producers
+- Best: use immutable document (consumer-producer)
+
+---
+
+## Pitfall: fear the default LRU cache
+
+- Terms filter cache is misleading
+
 **TODO**
 
 ---
 
-## Pitfalls
+## Pitfall: check your query
 
-- Terms filter cache is misleading
 - Use filtered query instead of query and filter
-- Limit the size of the list of producers in the consumer network
+
+**TODO**
 
 ---
 
@@ -320,14 +338,19 @@ can be represented as
 
 **TODO**
 
-- 42
-- 73
+- Cluster with 3 nodes
+- 30M news
+- avg response time = 40ms
+- 15 req/s
 
 ---
 
 ## What comes next?
 
 **TODO**
+
+- scoring
+- aggregation
 
 ---
 
