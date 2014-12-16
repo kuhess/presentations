@@ -103,9 +103,9 @@ know
 
 ## Technical challenges
 
-- response time < 50ms <!-- .element: class="fragment" -->
-- reasonable denormalization <!-- .element: class="fragment" -->
-- easily maintainable <!-- .element: class="fragment" -->
+- response time < 50ms (instead of 1.5 seconds on legacy)<!-- .element: class="fragment" -->
+- reasonable denormalization (instead of full relational model on legacy) <!-- .element: class="fragment" -->
+- easily maintainable (instead of ... you know what.) <!-- .element: class="fragment" -->
 
 ---
 
@@ -148,8 +148,8 @@ Scenario: Show a news feed from several sources, sorted by date,
 ---
 
  ## Storage strategies
-- Fan-out on write
-- Fan-out on read
+- Fan-out on write<!-- .element: class="fragment" -->
+- Fan-out on read<!-- .element: class="fragment" -->
 
 ---
 
@@ -181,15 +181,29 @@ Store atomic news and aggregate a news feed at the query time
 
 ---
 
+## Our choice
+- Fan out on read <!-- .element: class="fragment" -->
+- Elasticsearch <!-- .element: class="fragment" -->
+
+---
+
+## Why Elasticsearch?
+- Document oriented storage <!-- .element: class="fragment" -->
+- Filtering capabilities <!-- .element: class="fragment" -->
+- Promising technology <!-- .element: class="fragment" -->
+- Already present in our infrastructure <!-- .element: class="fragment" -->
+
+---
+
 ## Model with fan-out on read
+
+- Two indices <!-- .element: class="fragment" -->
+   - `newsfeed_consumer_network`
+   - `newsfeed`
 
 Build news feed on read <!-- .element: class="fragment" -->
 
 *Terms filter lookup!* <!-- .element: class="fragment important" -->
-
-- Two indices <!-- .element: class="fragment" -->
-  - `newsfeed`
-  - `newsfeed_consumer_network`
 
 ---
 
