@@ -1,0 +1,26 @@
+Damien :
+- Legacy ? (Mysql..)
+- Choix des 1000 peons dans le network
+- Chiffres dérive query filter
+
+Cedric :
+- Vocabulaire plus précis (events)
+- Attention au What's Next (juste des pistes, pas de certitude)
+
+Fabrice:
+- Bien expliquer les termes utilisés
+- Dashboard => Landing page
+- Surbrillance sur les trucs pas clairs
+- Pourquoi ES ? (Pas de scoring, pas de fulltext..)
+- Event driven indexation (plus courte ?)
+- Montrer des "vrais" trucs qu'on utilise (monitoring etc..)
+
+David:
+- Plus de précisions sur le Terms filter
+- Snapshots
+- Reindexation, aliasing
+- consumer network "lazy" reindexation
+- Strategie de test avec noeud local etc..
+
+Banana:
+- Strat ouverture newsfeed
