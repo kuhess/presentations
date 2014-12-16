@@ -41,7 +41,7 @@
 
         <div class="reveal">
             <div class="slides">
-                <section data-markdown data-separator="^\n---\n$" data-vertical="^\n--\n$">
+                <section data-markdown data-separator="^\n---\n$" data-vertical="^\n--\n$" data-transition="fade">
                     <script type="text/template">
 ## A news feed with
 # Elasticsearch
@@ -72,7 +72,7 @@ Who are we?
 
 ---
 
-![Viadeo screenshot](img/viadeo-news-feed-highlighted.png)
+![Viadeo screenshot](img/new_dash.png)
 
 ---
 
@@ -96,9 +96,60 @@ know
 
 ---
 
-## Fan-out on write
-# VS
-## Fan-out on read
+<!-- .slide: data-background="#1b91ff" -->
+## News feed prototype
+
+---
+
+## Technical challenges
+
+- response time < 50ms <!-- .element: class="fragment" -->
+- reasonable denormalization <!-- .element: class="fragment" -->
+- easily maintainable <!-- .element: class="fragment" -->
+
+---
+
+## How to prototype?
+
+- Drive your prototype by the tests <!-- .element: class="fragment" -->
+    - feature tests
+    - load tests
+- Be minimalist <!-- .element: class="fragment" -->
+    - "You Aren't Gonna Need It"
+    - "Keep it Simple, Stupid!"
+
+---
+
+## Functional Test (Cucumber)
+
+```gherkin
+Scenario: Show a news feed from several sources, sorted by date,
+          first is the most recent
+    Given "Ned" posts a status at 16h00
+      And "John" posts a status at 15h30
+      And "Jennyfer" comments a news at 14h18
+      And "Mary" updates her picture at 14h00
+      And "John" adds a new job position at 12h45
+    When I get my news feed
+    Then I see the following news:
+      | time  | news                        |
+      | 16h00 | Ned posts a status          |
+      | 15h30 | John posts a status         |
+      | 14h00 | Mary updates her picture    |
+      | 12h45 | John adds a new job postion |
+```
+
+---
+
+## Load Test (Gatling)
+
+![Gatling](img/gatling.png)
+
+---
+
+ ## Storage strategies
+- Fan-out on write
+- Fan-out on read
 
 ---
 
@@ -130,57 +181,6 @@ Store atomic news and aggregate a news feed at the query time
 
 ---
 
-<!-- .slide: data-background="#1b91ff" -->
-## News feed prototype
-
----
-
-## Technical challenges
-
-- response time < 50ms <!-- .element: class="fragment" -->
-- reasonable denormalization <!-- .element: class="fragment" -->
-- easily maintainable <!-- .element: class="fragment" -->
-
----
-
-## How to prototype?
-
-- Drive your prototype by the tests <!-- .element: class="fragment" -->
-    - feature tests
-    - load tests
-- Be minimalist <!-- .element: class="fragment" -->
-    - "You Aren't Gonna Need It"
-    - "Keep it Simple, Stupid!"
-
----
-
-## Cucumber Test
-
-```gherkin
-Scenario: Show a news feed from several sources, sorted by date,
-          first is the most recent
-    Given "Ned" posts a status at 16h00
-      And "John" posts a status at 15h30
-      And "Jennyfer" comments a news at 14h18
-      And "Mary" updates her picture at 14h00
-      And "John" adds a new job position at 12h45
-    When I get my news feed
-    Then I see the following news:
-      | time  | news                        |
-      | 16h00 | Ned posts a status          |
-      | 15h30 | John posts a status         |
-      | 14h00 | Mary updates her picture    |
-      | 12h45 | John adds a new job postion |
-```
-
----
-
-## Gatling Test
-
-![Gatling](img/gatling.png)
-
----
-
 ## Model with fan-out on read
 
 Build news feed on read <!-- .element: class="fragment" -->
@@ -199,9 +199,11 @@ Build news feed on read <!-- .element: class="fragment" -->
 
 can be represented as
 
+```
+/newsfeed_consumer_network/consumer_network/urn:viadeo:member:me
+```
 ```json
 {
-    "_id": "urn:viadeo:network:me",
     "producerIds": [
         "urn:viadeo:member:ted",
         "urn:viadeo:member:john",
@@ -226,9 +228,11 @@ can be represented as
 
 ## News document
 
+```
+/newsfeed/news/urn:viadeo:news:33
+```
 ```json
 {
-    "_id": "urn:viadeo:news:33",
     "producerId": "urn:viadeo:member:john",
     "published": "2014-12-17T12:45:00.000Z",
     "actor": {
