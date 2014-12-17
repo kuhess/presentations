@@ -63,7 +63,6 @@ Who are we?
 1. What is a news feed?
 1. News feed prototype
 1. News feed in production
-1. What is next?
 
 ---
 
@@ -320,10 +319,12 @@ TODO: faire une slide sur le sharding
 
 ## No fear
 
-- Prototype was already tested
-- Monitoring!
-- Snapshot (every 15 min)
-- Devops -> we can read in production
+- Prototype was already tested <!-- .element: class="fragment" -->
+- Monitoring (Graphite, Kibana) <!-- .element: class="fragment" -->  
+    ![Graphite](img/graphite.png)
+    ![Kibana](img/kibana.png)
+- Snapshot (every 15 min) <!-- .element: class="fragment" -->
+- Devops -> we can read in production <!-- .element: class="fragment" -->
 
 How to index data? <!-- .element: class="fragment important" -->
 
@@ -331,28 +332,31 @@ How to index data? <!-- .element: class="fragment important" -->
 
 ## Indexation
 
-Realtime event-based indexation
+- Realtime event-based indexation <!-- .element: class="fragment" -->
+    - Business event -> create a news <!-- .element: class="fragment" -->
+    - New contact event -> update a network <!-- .element: class="fragment" -->
 
-- business event -> create a news
-- new contact event -> update the network
+![Indexation with an event](img/indexation.svg) <!-- .element: class="fragment" -->
 
 ---
 
 ## Re-indexation on expiration
 
-#### Problem
+### Problem <!-- .element: class="fragment" data-fragment-index="1" -->
 
-Create a network document from scratch
+Create a network document from scratch <!-- .element: class="fragment" data-fragment-index="1" -->
 
-#### Solution
+### Solution <!-- .element: class="fragment" data-fragment-index="2" -->
 
-Re-create a network when it is *expired*
+Re-create a network when it is expired <!-- .element: class="fragment" data-fragment-index="2" -->
+- expiration delay
+- busting date
 
 ---
 
 ## Expiration example
 
-TODO
+TODO graph
 
 ---
 
@@ -364,15 +368,16 @@ TODO
 
 ## Check your query twice
 
-- Use filtered query instead of query and filter
+Use **filtered query** instead of **query and filter**
 
-**TODO add monitoring image**
+![Network size and response time](img/network-size-and-response-time.png)
 
 ---
 
-## Fear the default LRU cache
+## Think about the default LRU cache
 
 10mb terms filter cache is misleading
+
 ```json
 {
     "query": {
@@ -392,45 +397,43 @@ TODO
 
 ## Conflict on networks
 
-#### Problem
+### Problem <!-- .element: class="fragment" -->
 
-- one document per consumer with **all producers**
-- conflict on update
+- One document per consumer with all producers <!-- .element: class="fragment" -->
+- Potential big list serialization/deserialization  <!-- .element: class="fragment" -->
 
-#### Solutions
+=> Conflicts on update <!-- .element: class="fragment" -->
 
-1. **Quick & dirty**: retry!
-1. **Product-oriented**: limit number of producers
-1. **Best**: use immutable document (consumer-producer)
+### Solutions  <!-- .element: class="fragment" -->
+
+1. Quick & dirty: retry! <!-- .element: class="fragment" -->
+1. Product-oriented: limit number of producers <!-- .element: class="fragment" -->
+1. Best: use immutable document (consumer, producer) <!-- .element: class="fragment" -->
 
 ---
 
 ## Good pratices
 
-- terms filter lookup is sufficient
-- use TTL to delete old news
-- use alias
-- one index by type (for maintainability)
+- Terms filter lookup is sufficient
+- Use TTL to delete old news
+- Use alias
+- One index per type (for maintainability)
 
 ---
 
 ## Some figures
 
-**TODO**
-
 - Cluster with 3 nodes
-- 30M news
-- avg response time = 40ms
-- 15 req/s
+- 140M documents
+- Average response time = 40ms
+- 50 req/s
 
 ---
 
-## What comes next?
+## What is next?
 
-**TODO**
-
-- scoring
-- aggregation
+- Sort by score (popularity or/and relevance)
+- News aggregation
 
 ---
 
