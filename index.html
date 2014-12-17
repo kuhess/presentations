@@ -303,6 +303,8 @@ curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
 }
 ```
 
+TODO: faire une slide sur le sharding
+
 ---
 
 ## Terms filter lookup query
@@ -316,44 +318,99 @@ curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
 
 ---
 
-## Event-driven indexation
+## No fear
 
-Viadeo internal platform is **event based**
+- Prototype was already tested
+- Monitoring!
+- Snapshot (every 15 min)
+- Devops -> we can read in production
 
-- event ~ news
-- indexer == listener
-- near real-time indexation (some ms)
+How to index data? <!-- .element: class="fragment important" -->
 
 ---
 
-## Pitfall: conflict with consumer networks
+## Indexation
 
-### Problem
+Realtime event-based indexation
+
+- business event -> create a news
+- new contact event -> update the network
+
+---
+
+## Re-indexation on expiration
+
+#### Problem
+
+Create a network document from scratch
+
+#### Solution
+
+Re-create a network when it is *expired*
+
+---
+
+## Expiration example
+
+TODO
+
+---
+
+## Pitfalls
+
+![Pitfall](img/pitfall.gif)
+
+---
+
+## Check your query twice
+
+- Use filtered query instead of query and filter
+
+**TODO add monitoring image**
+
+---
+
+## Fear the default LRU cache
+
+10mb terms filter cache is misleading
+```json
+{
+    "query": {
+        "filtered": {
+            "filter": {
+                "terms": {
+                    ...
+                    "_cache": false
+                }
+            }
+        }
+    }
+}
+```
+
+---
+
+## Conflict on networks
+
+#### Problem
 
 - one document per consumer with **all producers**
 - conflict on update
 
-### Solutions
+#### Solutions
 
-- Quick & dirty: retry!
-- Product-oriented: limit number of producers
-- Best: use immutable document (consumer-producer)
-
----
-
-## Pitfall: fear the default LRU cache
-
-- Terms filter cache is misleading
-
-**TODO**
+1. **Quick & dirty**: retry!
+1. **Product-oriented**: limit number of producers
+1. **Best**: use immutable document (consumer-producer)
 
 ---
 
-## Pitfall: check your query
+## Good pratices
 
-- Use filtered query instead of query and filter
-
-**TODO**
+- terms filter lookup is sufficient
+- use TTL to delete old news
+- use alias
+- one index by type (for maintainability)
 
 ---
 
