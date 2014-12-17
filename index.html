@@ -95,16 +95,16 @@ know
 
 ---
 
-<!-- .slide: data-background="#1b91ff" -->
-## News feed prototype
+## Technical challenges
+
+- response time < 100ms (instead of 1.5 seconds on legacy)<!-- .element: class="fragment" -->
+- reasonable denormalization (instead of full relational model on legacy) <!-- .element: class="fragment" -->
+- easily maintainable (instead of ... you know what.) <!-- .element: class="fragment" -->
 
 ---
 
-## Technical challenges
-
-- response time < 50ms (instead of 1.5 seconds on legacy)<!-- .element: class="fragment" -->
-- reasonable denormalization (instead of full relational model on legacy) <!-- .element: class="fragment" -->
-- easily maintainable (instead of ... you know what.) <!-- .element: class="fragment" -->
+<!-- .slide: data-background="#1b91ff" -->
+## News feed prototype
 
 ---
 
@@ -211,6 +211,10 @@ Build news feed on read <!-- .element: class="fragment" -->
 
 ---
 
+![Terms fitler lookup](img/terms-filter-lookup.svg)
+
+---
+
 ## Consumer network document
 
 > I know Ned, John and Mary
@@ -223,7 +227,7 @@ can be represented as
 ```json
 {
     "producerIds": [
-        "urn:viadeo:member:ted",
+        "urn:viadeo:member:ned",
         "urn:viadeo:member:john",
         "urn:viadeo:member:mary"
     ]
@@ -284,9 +288,6 @@ curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
 {
     "query": {
         "filtered": {
-            "query": {
-                "match_all": {}
-            },
             "filter": {
                 "terms": {
                     "producerId": {
@@ -297,12 +298,11 @@ curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
                     }
                 }
             }
-        }
+        },
+        "sort": [{ "published": { "order" : "desc" } }]
     }
 }
 ```
-
-TODO: faire une slide sur le sharding
 
 ---
 
@@ -317,7 +317,7 @@ TODO: faire une slide sur le sharding
 
 ---
 
-## No fear
+## Pretty confident *(90%)* <!-- .element: class="fragment" -->
 
 - Prototype was already tested <!-- .element: class="fragment" -->
 - Monitoring (Graphite, Kibana) <!-- .element: class="fragment" -->  
@@ -344,19 +344,17 @@ How to index data? <!-- .element: class="fragment important" -->
 
 ### Problem <!-- .element: class="fragment" data-fragment-index="1" -->
 
-Create a network document from scratch <!-- .element: class="fragment" data-fragment-index="1" -->
+Re-create a network document from scratch (on demand) <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ### Solution <!-- .element: class="fragment" data-fragment-index="2" -->
 
-Re-create a network when it is expired <!-- .element: class="fragment" data-fragment-index="2" -->
-- expiration delay
-- busting date
+Use an expiration delay and a busting date <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ---
 
 ## Expiration example
 
-TODO graph
+![Expiration example](img/expiration.svg)
 
 ---
 
@@ -368,7 +366,7 @@ TODO graph
 
 ## Check your query twice
 
-Use **filtered query** instead of **query and filter**
+Use **filtered query** instead of **query and post_filter**
 
 ![Network size and response time](img/network-size-and-response-time.png)
 
@@ -376,7 +374,7 @@ Use **filtered query** instead of **query and filter**
 
 ## Think about the default LRU cache
 
-10mb terms filter cache is misleading
+10MB terms filter lookup cache is misleading
 
 ```json
 {
@@ -384,8 +382,10 @@ Use **filtered query** instead of **query and filter**
         "filtered": {
             "filter": {
                 "terms": {
-                    ...
-                    "_cache": false
+                    "producerId": {
+                        ...
+                        "cache": false
+                    }
                 }
             }
         }
@@ -402,7 +402,7 @@ Use **filtered query** instead of **query and filter**
 - One document per consumer with all producers <!-- .element: class="fragment" -->
 - Potential big list serialization/deserialization  <!-- .element: class="fragment" -->
 
-=> Conflicts on update <!-- .element: class="fragment" -->
+=> Conflicts on concurrent updates <!-- .element: class="fragment important" -->
 
 ### Solutions  <!-- .element: class="fragment" -->
 
@@ -410,30 +410,32 @@ Use **filtered query** instead of **query and filter**
 1. Product-oriented: limit number of producers <!-- .element: class="fragment" -->
 1. Best: use immutable document (consumer, producer) <!-- .element: class="fragment" -->
 
+https://github.com/elasticsearch/elasticsearch/pull/3278 <!-- .element: class="fragment" -->
+
 ---
 
-## Good pratices
+## Good practices
 
-- Terms filter lookup is sufficient
-- Use TTL to delete old news
-- Use alias
-- One index per type (for maintainability)
+- Terms filter lookup is sufficient <!-- .element: class="fragment" -->
+- Use TTL to delete old news <!-- .element: class="fragment" -->
+- Use alias <!-- .element: class="fragment" -->
+- One index per type (for maintainability) <!-- .element: class="fragment" -->
 
 ---
 
 ## Some figures
 
-- Cluster with 3 nodes
-- 140M documents
-- Average response time = 40ms
-- 50 req/s
+- Cluster with 3 nodes <!-- .element: class="fragment" -->
+- 140M documents <!-- .element: class="fragment" -->
+- Average response time = 40ms <!-- .element: class="fragment" -->
+- 50 req/s <!-- .element: class="fragment" -->
 
 ---
 
 ## What is next?
 
-- Sort by score (popularity or/and relevance)
-- News aggregation
+- Sort by score (popularity or/and relevance) <!-- .element: class="fragment" -->
+- News aggregation <!-- .element: class="fragment" -->
 
 ---
 
