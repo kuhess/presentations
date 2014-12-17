@@ -95,19 +95,19 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994951"
-     inkscape:cx="477.86723"
-     inkscape:cy="306.38961"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="241.56212"
+     inkscape:cy="354.19616"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g5769"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1440"
-     inkscape:window-height="851"
-     inkscape:window-x="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1033"
+     inkscape:window-x="1920"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
      width="744.09px" />
@@ -238,14 +238,13 @@
            style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       </g>
       <g
-         id="text5787"
-         style="font-size:7.23633862px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-         transform="matrix(1,-0.14036058,0,1,0,0)">
+         transform="matrix(1,-0.17099671,0,1,0,0)"
+         style="font-size:7.53514814px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+         id="text3649">
         <path
-           inkscape:connector-curvature="0"
-           id="path3172"
-           style="font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Sans;-inkscape-font-specification:Sans Bold"
-           d="m 74.509981,89.559985 4.861915,0 0,1.02821 -1.749017,0 0,4.247109 -1.360347,0 0,-4.247109 -1.752551,0 0,-1.02821" />
+           d="m 75.303512,91.601483 1.582087,0 1.997844,3.767574 0,-3.767574 1.342934,0 0,5.493152 -1.582087,0 -1.997844,-3.767574 0,3.767574 -1.342934,0 0,-5.493152"
+           style=""
+           id="path3654" />
       </g>
     </g>
     <rect
