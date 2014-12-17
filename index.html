@@ -120,12 +120,15 @@ know
 
 ---
 
-## Functional Test (Cucumber)
+## Functional Test
+
+### (Cucumber)
 
 ```gherkin
 Scenario: Show a news feed from several sources, sorted by date,
           first is the most recent
-    Given "Ned" posts a status at 16h00
+    Given I know "Ned", "John", "Mary"
+      And "Ned" posts a status at 16h00
       And "John" posts a status at 15h30
       And "Jennyfer" comments a news at 14h18
       And "Mary" updates her picture at 14h00
@@ -141,7 +144,9 @@ Scenario: Show a news feed from several sources, sorted by date,
 
 ---
 
-## Load Test (Gatling)
+## Load Test
+
+### (Gatling)
 
 ![Gatling](img/gatling.png)
 
