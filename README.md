@@ -1,1 +1,1 @@
-## https://kuhess.github.io/presentations
+## http://kuhess.github.io/presentations
