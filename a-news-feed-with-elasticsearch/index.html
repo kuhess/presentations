@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>A news feed with Elasticsearch</title>
+
+        <meta name="description" content="Feedback about the design and the implementation of the news feed of Viadeo with Elasticsearch.">
+        <meta name="author" content="Greg Truchetet and Quentin Suire">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+        <link rel="stylesheet" href="css/overrides.css">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+        <script>
+            if( window.location.search.match( /print-pdf/gi ) ) {
+                var link = document.createElement( 'link' );
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'css/print/pdf.css';
+                document.getElementsByTagName( 'head' )[0].appendChild( link );
+            }
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown data-separator="^\n---\n$" data-vertical="^\n--\n$" data-transition="fade">
+                    <script type="text/template">
+## A news feed with
+# Elasticsearch
+
+<small>Elasticsearch FR – 2014/12/17</small>
+
+---
+
+Who are we?
+
+![Grumpf!](img/critters.png)
+
+[Greg Truchetet]() & [Quentin Suire]() @ [Viadeo](https://www.viadeo.com)
+
+---
+
+## Contents
+
+1. What is a news feed?
+1. News feed prototype
+1. News feed in production
+
+---
+
+<!-- .slide: data-background="#1b91ff" -->
+## What is a news feed?
+
+---
+
+![Viadeo screenshot](img/new_dash.png)
+
+---
+
+## Basic example
+
+*I* <!-- .element: class="fragment highlight-green" data-fragment-index="1" -->
+know
+*Ned, John and Mary*. <!-- .element: class="fragment highlight-blue" data-fragment-index="2" -->
+
+- consumer <!-- .element: class="fragment highlight-green" data-fragment-index="1" -->
+- producers <!-- .element: class="fragment highlight-blue" data-fragment-index="2" -->
+
+| Time  | Activity                     |
+|-------|------------------------------|
+| 16:00 | Ned posts a status           |
+| 15:30 | John posts a status          |
+| 14:00 | Mary updates her picture     |
+| 12:45 | John adds a new job position |
+
+**How to *efficiently* store and retrieve it?** <!-- .element: class="fragment important" -->
+
+---
+
+## Technical challenges
+
+- response time < 100ms (instead of 1.5 seconds on legacy)<!-- .element: class="fragment" -->
+- reasonable denormalization (instead of full relational model on legacy) <!-- .element: class="fragment" -->
+- easily maintainable (instead of ... you know what.) <!-- .element: class="fragment" -->
+
+---
+
+<!-- .slide: data-background="#1b91ff" -->
+## News feed prototype
+
+---
+
+## How to prototype?
+
+- Drive your prototype by the tests <!-- .element: class="fragment" -->
+    - feature tests
+    - load tests
+- Be minimalist <!-- .element: class="fragment" -->
+    - "You Aren't Gonna Need It"
+    - "Keep it Simple, Stupid!"
+
+---
+
+## Functional Test
+
+### (Cucumber)
+
+```gherkin
+Scenario: Show a news feed from several sources, sorted by date,
+          first is the most recent
+    Given I know "Ned", "John", "Mary"
+      And "Ned" posts a status at 16h00
+      And "John" posts a status at 15h30
+      And "Jennyfer" comments a news at 14h18
+      And "Mary" updates her picture at 14h00
+      And "John" adds a new job position at 12h45
+    When I get my news feed
+    Then I see the following news:
+      | time  | news                        |
+      | 16h00 | Ned posts a status          |
+      | 15h30 | John posts a status         |
+      | 14h00 | Mary updates her picture    |
+      | 12h45 | John adds a new job postion |
+```
+
+---
+
+## Load Test
+
+### (Gatling)
+
+![Gatling](img/gatling.png)
+
+---
+
+ ## Storage strategies
+- Fan-out on write<!-- .element: class="fragment" -->
+- Fan-out on read<!-- .element: class="fragment" -->
+
+---
+
+## Fan-out on write 1/2
+
+Store a pre-computed news feed for each consumer
+
+![Bart](img/bart.gif)
+
+---
+
+## Fan-out on write 2/2
+
+![Fan-out on write](img/fan-out-on-write.svg)
+
+---
+
+## Fan-out on read 1/2
+
+Store atomic news and compose a news feed at the query time
+
+![Bart](img/aggregation.gif)
+
+---
+
+## Fan-out on read 2/2
+
+![Fan-out on read](img/fan-out-on-read.svg)
+
+---
+
+## Our choice
+- Fan out on read <!-- .element: class="fragment" -->
+- Elasticsearch <!-- .element: class="fragment" -->
+
+---
+
+## Why Elasticsearch?
+- Document oriented storage <!-- .element: class="fragment" -->
+- Filtering capabilities <!-- .element: class="fragment" -->
+- Promising technology <!-- .element: class="fragment" -->
+- Already present in our infrastructure <!-- .element: class="fragment" -->
+
+---
+
+## Model with fan-out on read
+
+- Two indices <!-- .element: class="fragment" -->
+   - `newsfeed_consumer_network`
+   - `newsfeed`
+
+Build news feed on read <!-- .element: class="fragment" -->
+
+*Terms filter lookup!* <!-- .element: class="fragment important" -->
+
+---
+
+![Terms fitler lookup](img/terms-filter-lookup.svg)
+
+---
+
+## Consumer network document
+
+> I know Ned, John and Mary
+
+can be represented as
+
+```
+/newsfeed_consumer_network/consumer_network/urn:viadeo:member:me
+```
+```json
+{
+    "producerIds": [
+        "urn:viadeo:member:ned",
+        "urn:viadeo:member:john",
+        "urn:viadeo:member:mary"
+    ]
+}
+```
+
+---
+
+## Activity Stream
+
+> John adds a new job position
+
+can be represented as
+
+| Actor | Verb   | Object   | Target  |
+|-------|--------|----------|---------|
+| John  | add    | position | profile |
+
+---
+
+## News document
+
+```
+/newsfeed/news/urn:viadeo:news:33
+```
+```json
+{
+    "producerId": "urn:viadeo:member:john",
+    "published": "2014-12-17T12:45:00.000Z",
+    "actor": {
+        "id": "urn:viadeo:member:john",
+        "objectType": "member",
+        "displayName": "John"
+    },
+    "verb": "add",
+    "object": {
+        "id": "urn:viadeo:position:10",
+        "objectType": "position",
+        "displayName": "Software Engineer @ Viadeo"
+    },
+    "target": {
+        "id": "urn:viadeo:profile:john",
+        "objectType": "profile",
+        "displayName": "John's profile"
+    }
+}
+```
+
+---
+
+## Terms filter lookup query
+
+```sh
+curl -XPOST "http://localhost:9200/newsfeed/news/_search" -d
+```
+
+```json
+{
+    "query": {
+        "filtered": {
+            "filter": {
+                "terms": {
+                    "producerId": {
+                        "index": "newsfeed_consumer_network",
+                        "type": "consumer_network",
+                        "id": "urn:viadeo:network:me",
+                        "path": "producerIds"
+                    }
+                }
+            }
+        },
+        "sort": [{ "published": { "order" : "desc" } }]
+    }
+}
+```
+
+---
+
+## Terms filter lookup query
+
+![Dog](img/happydog.gif)
+
+---
+
+<!-- .slide: data-background="#1b91ff" -->
+## News feed in production
+
+---
+
+## Pretty confident *(90%)* <!-- .element: class="fragment" -->
+
+- Prototype was already tested <!-- .element: class="fragment" -->
+- Monitoring (Graphite, Kibana) <!-- .element: class="fragment" -->  
+    ![Graphite](img/graphite.png)
+    ![Kibana](img/kibana.png)
+- Snapshot (every 15 min) <!-- .element: class="fragment" -->
+- Devops -> we can read in production <!-- .element: class="fragment" -->
+
+How to index data? <!-- .element: class="fragment important" -->
+
+---
+
+## Indexation
+
+- Realtime event-based indexation <!-- .element: class="fragment" -->
+    - Business event -> create a news <!-- .element: class="fragment" -->
+    - New contact event -> update a network <!-- .element: class="fragment" -->
+
+![Indexation with an event](img/indexation.svg) <!-- .element: class="fragment" -->
+
+---
+
+## Re-indexation on expiration
+
+### Problem <!-- .element: class="fragment" data-fragment-index="1" -->
+
+Re-create a network document from scratch (on demand) <!-- .element: class="fragment" data-fragment-index="1" -->
+
+### Solution <!-- .element: class="fragment" data-fragment-index="2" -->
+
+Use an expiration delay and a busting date <!-- .element: class="fragment" data-fragment-index="2" -->
+
+---
+
+## Expiration example
+
+![Expiration example](img/expiration.svg)
+
+---
+
+## Pitfalls
+
+![Pitfall](img/pitfall.gif)
+
+---
+
+## Check your query twice
+
+Use **filtered query** instead of **query and post_filter**
+
+![Network size and response time](img/network-size-and-response-time.png)
+
+---
+
+## Think about the default LRU cache
+
+10MB terms filter lookup cache is misleading
+
+```json
+{
+    "query": {
+        "filtered": {
+            "filter": {
+                "terms": {
+                    "producerId": {
+                        ...
+                        "cache": false
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+---
+
+## Conflict on networks
+
+### Problem <!-- .element: class="fragment" -->
+
+- One document per consumer with all producers <!-- .element: class="fragment" -->
+- Potential big list serialization/deserialization  <!-- .element: class="fragment" -->
+
+=> Conflicts on concurrent updates <!-- .element: class="fragment important" -->
+
+### Solutions  <!-- .element: class="fragment" -->
+
+1. Quick & dirty: retry! <!-- .element: class="fragment" -->
+1. Product-oriented: limit number of producers <!-- .element: class="fragment" -->
+1. Best: use immutable document (consumer, producer) <!-- .element: class="fragment" -->
+
+https://github.com/elasticsearch/elasticsearch/pull/3278 <!-- .element: class="fragment" -->
+
+---
+
+## Good practices
+
+- Terms filter lookup is sufficient <!-- .element: class="fragment" -->
+- Use TTL to delete old news <!-- .element: class="fragment" -->
+- Use alias <!-- .element: class="fragment" -->
+- One index per type (for maintainability) <!-- .element: class="fragment" -->
+
+---
+
+## Some figures
+
+- Cluster with 3 nodes <!-- .element: class="fragment" -->
+- 140M documents <!-- .element: class="fragment" -->
+- Average response time = 40ms <!-- .element: class="fragment" -->
+- 50 req/s <!-- .element: class="fragment" -->
+
+---
+
+## What is next?
+
+- Sort by score (popularity or/and relevance) <!-- .element: class="fragment" -->
+- News aggregation <!-- .element: class="fragment" -->
+
+---
+
+<!-- .slide: data-background="#1b91ff" -->
+## Questions?
+                    </script>
+                </section>
+            </div>
+
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>
