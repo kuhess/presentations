@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Applications web VS Haute charge</title>
+
+		<meta name="description" content="Vous avez dit charge ?">
+		<meta name="author" content="Quentin Suire">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/simple.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<link rel="stylesheet" href="lib/css/twemoji-awesome.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+
+				<section>
+					<h1>Appli Web</h1>
+					<h2><i class="twa twa-vs"></i></h2>
+					<h1>Haute charge</h1>
+					<p><i class="twa twa-2x twa-boom"></i><p>
+					<p>
+						<small>Par <a href="http://kuhess.github.io">Quentin Suire</a></small><br/>
+						<small>INSA de Rouen, le 02/09/2015</small>
+					</p>
+				</section>
+
+				<section>
+					<h2>Quentin Suire</h2>
+					<p><i class="twa twa-5x twa-space-invader"></i><p>
+					<p>Promo ASI 2011</p>
+					<p>Ingénieur full-stack chez <a href="http://www.viadeo.com">Viadeo.com</a></p>
+				</section>
+
+				<section>
+					<img src="img/viadeo-openspace.png" />
+				</section>
+
+
+				<section>
+					<img src="img/viadeo-wiiu.png" />
+				</section>
+
+				<section>
+					<h2>Plan</h2>
+
+					<ol>
+						<li>What are you talking about?</li>
+						<li>Un exemple de scalabilité</li>
+						<li>Le cas d'une web app </li>
+						<li>Démo <i class="twa twa-rocket"></i></li>
+					</ol>
+				</section>
+
+				<section data-background="img/wut.gif">
+					<h1 style="color: white;">What are you talking about?</h1>
+				</section>
+
+				<section>
+					<h2>Une Application Web <i class="twa twa-blue-book"></i></h2>
+					<blockquote cite="https://fr.wikipedia.org/wiki/Application_web">
+						&ldquo;En informatique, une <b>application web</b> est une application manipulable grâce à un <b>navigateur web</b>.&rdquo;
+
+						<footer>— Wikipedia</footer>
+					</blockquote>
+					<img src="img/captain-obvious-south-park.jpg" />
+					
+					<aside class="notes">
+						C'est simple, mais qu'est-ce que ça donne techniquement ?
+					</aside>
+				</section>
+
+				<section>
+					<h2>Un p'tit schéma</h2>
+
+					<img src="img/Client-server-model.svg" />
+
+					<aside class="notes">
+						architecture client-serveur classique
+					</aside>
+				</section>
+
+				<section>
+					<h2>Une bonne web app ?</h2>
+
+					<p>
+						<i class="twa twa-grinning"></i> <br/>
+						Les utilisateurs sont heureux
+					</p>
+					<p>
+						<i class="twa twa-zap"></i> <br/>
+						Le site est disponible
+					</p>
+					<p>
+						<i class="twa twa-money-with-wings"></i> <br/>
+						L'entreprise ne perd pas d'argent
+					</p>
+					<p>
+						<i class="twa twa-lg twa-chart-with-upwards-trend"></i> <br/>
+						<b>Le système peut évoluer</b>
+					</p>
+
+					<aside class="notes">
+						on voit venir :P
+						on peut ajouter des fonctionnalités
+						on peut "grandir"
+					</aside>
+				</section>
+
+				<section>
+					<h2>Évolutivité <i class="twa twa-alien"></i></h2>
+
+					<ul>
+						<li><b>Produit</b> : Apporter plus de fonctionnalités.</li>
+						<li><b>Utilisation</b> : Supporter un usage plus important.</li>
+					</ul>
+
+				</section>
+
+				<section>
+					<h2>La <em>scalabilité</em> <i class="twa twa-blue-book"></i></h2>
+
+					<blockquote cite="https://fr.wikipedia.org/wiki/Scalability">
+						&ldquo;La <b>scalabilité</b> désigne la capacité d'un produit à <b>s'adapter à un changement d'ordre de grandeur de la demande</b>.&rdquo;
+
+						<footer>— Wikipedia</footer>
+					</blockquote>
+
+					<img src="img/crabs.gif" />
+				</section>
+
+				<section>
+					<h2>Remarques</h2>
+
+					<blockquote>
+						<h4>Truth #1</h3>
+						<p>It won't scale if it's not designed to scale.</p>
+						<h4>Truth #2</h3>
+						<p>Even if it's designed to scale, there's going to be pain.</p>
+
+						<footer>— John Engates, CTO de Rackspace</footer>
+					</blockquote>
+					
+				</section>
+
+				<section data-background="img/coffee.gif">
+					<h1 style="color: white;">Un exemple de scalabilité</h1>
+				</section>
+
+				<section>
+					<h2>Le café du coin</h2>
+					<img src="img/coffee_smile.jpg" />
+					<footer><small>Basé sur http://highscalability.com/blog/2014/3/17/intuitively-showing-how-to-scale-a-web-application-using-a-c.html</small></footer>
+				</section>
+
+				<section>
+					<img src="img/internet-grammy.jpg" />
+				</section>
+
+				<section>
+					<h2>Les premiers clients</h2>
+
+					<img src="img/fry.jpg" />
+				</section>
+
+				<section>
+					<h2>Café</h2>
+
+					<img src="img/cafe-synchrone.svg" />
+
+					<aside class="notes">
+						Un seul barista, une seule machine
+						=> traitement synchrone	
+					</aside>
+				</section>
+
+				<section>
+					<h2>Café</h2>
+
+					<img src="img/cafe-waiting.svg" />
+				</section>
+
+				<section>
+					<h2>Le client n'attend pas</h2>
+
+					<img src="img/waiting.gif" />
+
+					<aside class="notes">
+						Pendant les pics d'affluences, des clients s'en vont à cause du temps d'attente.
+					</aside>
+				</section>
+
+				<section>
+					<h2>Café</h2>
+
+					<img src="img/cafe-medium.svg" />
+
+					<aside class="notes">
+						<p>3 baristas</p>
+						<p>2 chaises pour les clients qui attendent</p>
+						<p>Une machine qui peut faire 2 cafés à la fois</p>
+					</aside>
+				</section>
+
+				<section>
+					<h2>Toujours plus de clients</h2>
+					<img src="img/sheeps.gif" />
+				</section>
+
+				<section>
+					<h2>Café</h2>
+
+					<img src="img/cafe-large.svg" />
+
+					<aside class="notes">
+						<p>5 baristas</p>
+						<p>3 chaises pour les clients qui attendent</p>
+						<p>Une machine qui peut faire 4 cafés à la fois</p>
+						=> scaling vertical
+
+						<p>Pendant la journée, les effectifs et les machines sont surdimensionnés.</p>
+					</aside>
+				</section>
+
+				<section>
+					<h2>Café</h2>
+
+					<img src="img/cafe-large-empty.svg" />
+
+					<aside class="notes">
+						<p>5 baristas</p>
+						<p>3 chaises pour les clients qui attendent</p>
+						<p>Une machine qui peut faire 4 cafés à la fois</p>
+						=> scaling vertical
+
+						<p>Pendant la journée, les effectifs et les machines sont surdimensionnés.</p>
+					</aside>
+				</section>
+
+				<section>
+					<h2>Café</h2>
+
+					<img src="img/cafe-horizontal-scale.svg" />
+
+					<aside class="notes">
+						<p>1 serveur qui prend les commandes et fait le service</p>
+						<p>[3 baristas + 1 machine à 2 cafés]</p>
+						<p>3 chaises pour les clients qui attendent</p>
+						=> scaling horizontal
+					</aside>
+				</section>
+
+				<section>
+					<h2>Les clients sont satisfaits...</h2>
+					<img src="img/coffee-happy.gif" />
+<!-- hard coffee <img src="http://i.giphy.com/u9QoHec9uGfq8.gif" /> -->
+<!-- happy coffee <img src="http://i.giphy.com/dGhlifOCTtSdW.gif" /> -->
+				</section>
+
+				<section>
+					<h2>mais ils veulent des gaufres</h2>
+
+					<img src="img/waffles.gif" />
+				</section>
+
+				<section>
+					<h2>Café</h2>
+
+					<img src="img/cafe-gaufre.svg" />
+
+					<aside class="notes">
+						<p>1 ticket est attribué à chaque client</p>
+						<p>les baristas décident de faire du café ou des gaufres</p>
+
+						<p>1 machine à gaufres</p>
+						<p>1 serveur qui prend les commandes et fait le service</p>
+						<p>[3 baristas + 1 machine à 2 cafés] * 1 ou 2 </p>
+
+						<p>plus efficace MAIS c'est compliqué</p>
+					</aside>
+				</section>
+
+				<section>
+					<h2>Mais !?! C'est Starbucks !</h2>
+					<img src="img/starbucks.svg" />
+				</section>
+
+<!-- bettlejuince wainting ticket <img src="http://i.giphy.com/d2qJhxeaaWXPG.gif" /> -->
+
+				<section data-background="img/pokemons.gif">
+					<h1>L'évolution d'une web app</h1>
+				</section>
+
+				<section>
+					<h2>Architecture 3-tiers</h2>
+
+					<img src="img/3-tiers.svg" />
+
+					<aside class="notes">
+						<li>Pas de complexité <i class="twa twa-arrow-right"></i> développements rapides</li>
+						<li>Peu de serveurs <i class="twa twa-arrow-right"></i> faibles coûts</li>
+					</aside>
+				</section>
+
+				<section>
+					<h2>Sécuriser la donnée</h2>
+
+					<img src="img/backup.svg" />
+
+					<aside class="notes">
+						<p>Ajout d'un système de réplication</p>
+					</aside>
+				</section>
+
+				<section>
+					<h2>Scaling horizontal</h2>
+
+					<img src="img/horizontal-scaling.svg" />
+
+					<aside class="notes">
+						Déployer sans période d'indisponibilité
+						<p>Un minimum de 2 serveurs applicatifs</p>
+						<p>Ajout d'un load balancer (reverse proxy)</p>
+					</aside>
+				</section>
+
+				<section>
+					<h2>Cache frontal</h2>
+
+					<img src="img/front-cache.svg" />
+
+					<aside class="notes">
+					</aside>
+				</section>
+
+				<section>
+					<h2>Logs à gogo</h2>
+
+					<img src="img/logs.svg" />
+
+					<aside class="notes">
+					</aside>
+				</section>
+
+				<section>
+					<h2>Dériver la donnée</h2>
+
+					<img src="img/batch.svg" />
+
+					<aside class="notes">
+					</aside>
+				</section>
+
+				<section>
+					<h2>Séparer la lecture et l'écriture</h2>
+
+					<img src="img/cqrs.svg" />
+
+					<h3><i class="twa twa-warning"></i> Cohérence à terme</h3>
+
+					<aside class="notes">
+						asynchronisme
+						cohérence à terme en lecture
+					</aside>
+				</section>
+
+				<section>
+					<h2>Haute disponibilité</h2>
+
+					<img src="img/availability.svg" />
+
+					<h3><i class="twa twa-white-check-mark"></i> Aucun SPoF</h3>
+
+					<aside class="notes">
+						Proxy
+						Pare-feu (firewall)
+						Routeur
+						Opérateur réseau
+						Serveur de répartition de charge
+						Serveur de service (HTTP, LDAP, Base de données, stockage, etc.)
+						Tout câble ou interface réseau
+						L'alimentation électrique (transformateur qui casse, arrivée d'alimentation qui disjoncte, câble sectionné).
+					</aside>
+				</section>
+
+				<section>
+					<h1>Démo !</h1>
+					<h1><i class="twa twa-rocket"></i></h1>
+				</section>
+
+				<section data-background="img/think.gif">
+					<h1>À retenir</h1>
+				</section>
+
+				<section>
+					<h2>Ne pas brûler les étapes</h2>
+					<i class="twa twa-4x twa-fire"></i>
+				</section>
+
+				<section>
+					<h2>S'intéresser au produit</h2>
+					<i class="twa twa-4x twa-bulb"></i>
+				</section>
+
+				<section>
+					<h2>Connaître les limites de son système</h2>
+					<i class="twa twa-4x twa-poop"></i>
+				</section>
+
+				<section>
+					<h2>Tester régulièrement son système</h2>
+					<i class="twa twa-4x twa-electric-plug"></i>
+				</section>
+
+				<section>
+					<h2>Prévoir un forfait 4G</h2>
+					<i class="twa twa-4x twa-iphone"></i>
+				</section>
+
+				<section>
+					<h1><i class="twa twa-2x twa-question"></i></h1>
+				</section>
+
+				<section>
+					<h1><i class="twa twa-spaghetti"></i></h1>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				slideNumber: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
